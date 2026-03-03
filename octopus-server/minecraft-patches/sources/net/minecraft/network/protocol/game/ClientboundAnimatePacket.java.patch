@@ -1,0 +1,16 @@
+--- a/net/minecraft/network/protocol/game/ClientboundAnimatePacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundAnimatePacket.java
+@@ -28,6 +_,13 @@
+         this.action = buffer.readUnsignedByte();
+     }
+ 
++    // Octopus start - add constructor with entity id
++    public ClientboundAnimatePacket(int id, int action) {
++        this.id = id;
++        this.action = action;
++    }
++    // Octopus end - add constructor with entity id
++
+     private void write(FriendlyByteBuf buffer) {
+         buffer.writeVarInt(this.id);
+         buffer.writeByte(this.action);

@@ -1,0 +1,22 @@
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftHopper.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftHopper.java
+@@ -53,4 +_,19 @@
+         return getSnapshot().cooldownTime;
+     }
+     // Paper end - Expanded Hopper API
++
++    // Octopus start - Configurable hopper transfer multiplier
++    @Override
++    public float getTransferMultiplier() {
++        return this.getBlockEntity().getHopperTransferMultiplier();
++    }
++
++    @Override
++    public void setTransferMultiplier(float multiplier) {
++        if (multiplier < 0) {
++            throw new IllegalArgumentException("Hopper transfer multiplier cannot be negative (" + multiplier + ")");
++        }
++        this.getBlockEntity().setHopperTransferMultiplier(multiplier);
++    }
++    // Octopus end - Configurable hopper transfer multiplier
+ }

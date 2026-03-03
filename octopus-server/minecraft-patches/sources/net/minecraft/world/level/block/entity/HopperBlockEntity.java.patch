@@ -1,0 +1,65 @@
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -38,6 +_,7 @@
+     public int cooldownTime = -1;
+     private long tickedGameTime = Long.MIN_VALUE; // Folia - region threading
+     private Direction facing;
++    private float hopperTransferMultiplier = 1.0F; // Octopus - Configurable hopper transfer multiplier
+ 
+     // CraftBukkit start - add fields and methods
+     public List<org.bukkit.entity.HumanEntity> transaction = new java.util.ArrayList<>();
+@@ -83,6 +_,16 @@
+     }
+     // Folia end - region threading
+ 
++    // Octopus start - Configurable hopper transfer multiplier
++    public float getHopperTransferMultiplier() {
++        return hopperTransferMultiplier;
++    }
++
++    public void setHopperTransferMultiplier(float hopperTransferMultiplier) {
++        this.hopperTransferMultiplier = hopperTransferMultiplier;
++    }
++    // Octopus end - Configurable hopper transfer multiplier
++
+     public HopperBlockEntity(BlockPos pos, BlockState blockState) {
+         super(BlockEntityType.HOPPER, pos, blockState);
+         this.facing = blockState.getValue(HopperBlock.FACING);
+@@ -97,6 +_,7 @@
+         }
+ 
+         this.cooldownTime = input.getIntOr("TransferCooldown", -1);
++        this.hopperTransferMultiplier = input.getFloatOr("TransferMultiplier", 1.0F); // Octopus - Configurable hopper transfer multiplier
+     }
+ 
+     @Override
+@@ -107,6 +_,11 @@
+         }
+ 
+         output.putInt("TransferCooldown", this.cooldownTime);
++        // Octopus start - Configurable hopper transfer multiplier
++        if (this.hopperTransferMultiplier != 1.0F) {
++            output.putFloat("TransferMultiplier", this.hopperTransferMultiplier);
++        }
++        // Octopus end - Configurable hopper transfer multiplier
+     }
+ 
+     @Override
+@@ -242,7 +_,7 @@
+                 ItemStack movedItem = origItemStack;
+ 
+                 final int originalItemCount = origItemStack.getCount();
+-                final int movedItemCount = Math.min(level.spigotConfig.hopperAmount, originalItemCount);
++                final int movedItemCount = Math.min((int) (level.spigotConfig.hopperAmount * hopper.hopperTransferMultiplier), originalItemCount); // Octopus - Configurable hopper transfer multiplier
+                 origItemStack.setCount(movedItemCount);
+ 
+                 // We only need to fire the event once to give protection plugins a chance to cancel this event
+@@ -280,7 +_,7 @@
+         io.papermc.paper.threadedregions.RegionizedWorldData worldData = level.getCurrentWorldData(); // Folia - region threading
+         ItemStack movedItem = origItemStack;
+         final int originalItemCount = origItemStack.getCount();
+-        final int movedItemCount = Math.min(level.spigotConfig.hopperAmount, originalItemCount);
++        final int movedItemCount = Math.min((int) (level.spigotConfig.hopperAmount * hopper.getHopperTransferMultiplier()), originalItemCount); // Octopus - Configurable hopper transfer multiplier
+         container.setChanged(); // original logic always marks source inv as changed even if no move happens.
+         movedItem.setCount(movedItemCount);
+ 

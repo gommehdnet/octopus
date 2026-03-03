@@ -1,0 +1,27 @@
+--- a/src/main/java/org/bukkit/event/player/PlayerPreLoginEvent.java
++++ b/src/main/java/org/bukkit/event/player/PlayerPreLoginEvent.java
+@@ -33,6 +_,7 @@
+     private final String name;
+     private final InetAddress ipAddress;
+     private final UUID uniqueId;
++    private boolean skipLog; // Octopus - Allow skipping log messages for canceled login events
+     private Result result;
+     private Component message;
+ 
+@@ -184,6 +_,16 @@
+     public static HandlerList getHandlerList() {
+         return HANDLER_LIST;
+     }
++
++    // Octopus start - Allow skipping log messages for canceled login events
++    public boolean isSkipLog() {
++        return skipLog;
++    }
++
++    public void setSkipLog(boolean skipLog) {
++        this.skipLog = skipLog;
++    }
++    // Octopus end - Allow skipping log messages for canceled login events
+ 
+     /**
+      * Basic kick reasons for communicating to plugins

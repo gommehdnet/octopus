@@ -1,0 +1,25 @@
+--- a/net/minecraft/world/entity/projectile/Projectile.java
++++ b/net/minecraft/world/entity/projectile/Projectile.java
+@@ -3,6 +_,7 @@
+ import com.google.common.base.MoreObjects;
+ import it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair;
+ import java.util.function.Consumer;
++import net.gommehd.cheetah.event.entity.ProjectileAllowCollideWithPlayerEvent;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.network.protocol.game.ClientGamePacketListener;
+@@ -406,6 +_,14 @@
+             if (owner instanceof net.minecraft.server.level.ServerPlayer) {
+                 org.bukkit.entity.Entity collided = target.getBukkitEntity();
+                 org.bukkit.entity.Player shooter = (org.bukkit.entity.Player) owner.getBukkitEntity();
++                // Octopus start - Add ProjectileAllowCollideWithPlayerEvent
++                if (target instanceof net.minecraft.server.level.ServerPlayer) {
++                    ProjectileAllowCollideWithPlayerEvent allowCollideEvent = org.bukkit.craftbukkit.event.CraftEventFactory.callProjectileAllowCollideWithPlayerEvent(this, target);
++                    if (!allowCollideEvent.isAllowCollide() && !shooter.canSee(collided)) {
++                        return false;
++                    }
++                }
++                // Octopus end - Add ProjectileAllowCollideWithPlayerEvent
+                 if (!shooter.canSee(collided)) {
+                     return false;
+                 }

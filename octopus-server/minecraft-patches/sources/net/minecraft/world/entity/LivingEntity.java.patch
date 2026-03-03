@@ -1,0 +1,53 @@
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1446,6 +_,28 @@
+         return this.getHealth() <= 0.0F;
+     }
+ 
++    // Octopus start - re-add isDamageSourceBlocked method
++    public boolean isDamageSourceBlocked(DamageSource damageSource) {
++        Entity directEntity = damageSource.getDirectEntity();
++        boolean flag = false;
++        if (directEntity instanceof AbstractArrow abstractArrow && abstractArrow.getPierceLevel() > 0) {
++            flag = true;
++        }
++
++        ItemStack itemBlockingWith = this.getItemBlockingWith();
++        if (!damageSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_SHIELD) && itemBlockingWith != null && itemBlockingWith.getItem() instanceof net.minecraft.world.item.ShieldItem && !flag) {
++            Vec3 sourcePosition = damageSource.getSourcePosition();
++            if (sourcePosition != null) {
++                Vec3 vec3 = this.calculateViewVector(0.0F, this.getYHeadRot());
++                Vec3 vec31 = sourcePosition.vectorTo(this.position());
++                vec31 = new Vec3(vec31.x, 0.0, vec31.z).normalize();
++                return vec31.dot(vec3) < 0.0;
++            }
++        }
++        return false;
++    }
++    // Octopus end - re-add isDamageSourceBlocked method
++
+     @Override
+     public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
+         if (this.isInvulnerableTo(level, damageSource)) {
+@@ -2103,6 +_,21 @@
+             return false;
+         }
+     }
++
++    // Octopus start - Added VillagerGiveGiftToHeroEvent
++    public List<ItemStack> getFromGiftLootTable(ServerLevel world, ResourceKey<LootTable> lootTableKey) {
++        return this.getFromLootTable(world, lootTableKey, (lootparams_a) ->
++            lootparams_a.withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN, this.position())
++            .withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY, this)
++            .create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.GIFT));
++    }
++
++    public List<ItemStack> getFromLootTable(ServerLevel world, ResourceKey<LootTable> lootTableKey, Function<LootParams.Builder, LootParams> lootContextParametersFactory) {
++        LootTable lootTable = world.getServer().reloadableRegistries().getLootTable(lootTableKey);
++        LootParams lootParams = lootContextParametersFactory.apply(new LootParams.Builder(world));
++        return lootTable.getRandomItems(lootParams);
++    }
++    // Octopus end - Added VillagerGiveGiftToHeroEvent
+ 
+     public void knockback(double strength, double x, double z) {
+         // CraftBukkit start - EntityKnockbackEvent

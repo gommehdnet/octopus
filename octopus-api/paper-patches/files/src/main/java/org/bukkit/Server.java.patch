@@ -1,0 +1,18 @@
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2163,6 +_,15 @@
+     @Nullable
+     Entity getEntity(@NotNull UUID uuid);
+ 
++    /**
++     * Retrieves an entity based on the provided entity ID.
++     *
++     * @param entityId the unique identifier of the entity to be retrieved; must not be null.
++     * @return the entity associated with the given ID, or null if no such entity exists.
++     */
++    @Nullable
++    Entity getEntity(@NotNull Integer entityId);
++
+     // Paper start
+     /**
+      * Gets the current server TPS
