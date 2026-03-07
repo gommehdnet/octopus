@@ -1,0 +1,14 @@
+--- a/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -212,7 +_,10 @@
+ 
+     private void verifyLoginAndFinishConnectionSetup(GameProfile profile) {
+         PlayerList playerList = this.server.getPlayerList();
+-        Component component = org.bukkit.craftbukkit.event.CraftEventFactory.handleLoginResult(playerList.canPlayerLogin(this.connection.getRemoteAddress(), new NameAndId(profile), this.connection), this.paperLoginConnection, this.connection, profile, this.server, true); // Paper // Folia - region threading - add connection parameter
++        // Octopus start - Allow skipping log messages for canceled login events
++        io.papermc.paper.connection.HorriblePlayerLoginEventHack.LoginResult result = org.bukkit.craftbukkit.event.CraftEventFactory.handleLoginResult(playerList.canPlayerLogin(this.connection.getRemoteAddress(), new NameAndId(profile), this.connection), this.paperLoginConnection, this.connection, profile, this.server, true); // Paper // Folia - region threading - add connection parameter
++        Component component = result.message();
++        // Octopus end - Allow skipping log messages for canceled login events
+         if (component != null) {
+             this.disconnect(component);
+         } else {

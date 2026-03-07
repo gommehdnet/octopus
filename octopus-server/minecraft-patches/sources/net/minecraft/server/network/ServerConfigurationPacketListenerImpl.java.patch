@@ -1,0 +1,14 @@
+--- a/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+@@ -199,7 +_,10 @@
+                 return;
+             }
+ 
+-            Component component = org.bukkit.craftbukkit.event.CraftEventFactory.handleLoginResult(playerList.canPlayerLogin(this.connection.getRemoteAddress(), new NameAndId(this.gameProfile), this.connection), this.paperConnection, this.connection, this.gameProfile, this.server, false); // Paper - Login event logic // Folia - region threading - add connection parameter
++            // Octopus start - Allow skipping log messages for canceled login eventslt
++            io.papermc.paper.connection.HorriblePlayerLoginEventHack.LoginResult loginResult = org.bukkit.craftbukkit.event.CraftEventFactory.handleLoginResult(playerList.canPlayerLogin(this.connection.getRemoteAddress(), new NameAndId(this.gameProfile), this.connection), this.paperConnection, this.connection, this.gameProfile, this.server, false); // Paper - Login event logic // Folia - region threading - add connection parameter
++            Component component = loginResult.message();
++            // Octopus end - Allow skipping log messages for canceled login events
+             if (component != null) {
+                 this.disconnect(component);
+                 return;

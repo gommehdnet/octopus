@@ -1,0 +1,93 @@
+--- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
++++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+@@ -11,7 +_,6 @@
+ import java.util.EnumMap;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Optional;
+ import java.util.Set;
+ import java.util.stream.Collectors;
+ import java.util.stream.Stream;
+@@ -23,6 +_,7 @@
+ import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
+ import io.papermc.paper.event.entity.ItemTransportingEntityValidateTargetEvent;
+ import io.papermc.paper.event.player.PlayerBedFailEnterEvent;
++import net.gommehd.cheetah.event.entity.ProjectileAllowCollideWithPlayerEvent;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.network.Connection;
+@@ -46,13 +_,8 @@
+ import net.minecraft.world.entity.Mob;
+ import net.minecraft.world.entity.PathfinderMob;
+ import net.minecraft.world.entity.animal.fish.AbstractFish;
+-import net.minecraft.world.entity.animal.golem.AbstractGolem;
+ import net.minecraft.world.entity.animal.Animal;
+-import net.minecraft.world.entity.animal.fish.WaterAnimal;
+ import net.minecraft.world.entity.item.ItemEntity;
+-import net.minecraft.world.entity.monster.Ghast;
+-import net.minecraft.world.entity.monster.Monster;
+-import net.minecraft.world.entity.monster.Slime;
+ import net.minecraft.world.entity.monster.illager.SpellcasterIllager;
+ import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+ import net.minecraft.world.entity.raid.Raid;
+@@ -1441,7 +_,10 @@
+         com.destroystokyo.paper.event.entity.ProjectileCollideEvent event = new com.destroystokyo.paper.event.entity.ProjectileCollideEvent(projectile, collided);
+ 
+         if (projectile.getShooter() instanceof Player && collided instanceof Player) {
+-            if (!((Player) projectile.getShooter()).canSee((Player) collided)) {
++            // Octopus start - Added ProjectileAllowCollideWithPlayerEvent
++            ProjectileAllowCollideWithPlayerEvent allowCollideEvent = callProjectileAllowCollideWithPlayerEvent(entity, position.getEntity());
++            if (!allowCollideEvent.isAllowCollide() && !((Player) projectile.getShooter()).canSee((Player) collided)) {
++                // Octopus end - Added ProjectileAllowCollideWithPlayerEvent
+                 event.setCancelled(true);
+                 return event;
+             }
+@@ -1452,6 +_,15 @@
+     }
+     // Paper end
+ 
++    // Octopus start - Add ProjectileAllowCollideWithPlayerEvent
++    public static ProjectileAllowCollideWithPlayerEvent callProjectileAllowCollideWithPlayerEvent(Entity entity, Entity player) {
++        Projectile projectile = (Projectile) entity.getBukkitEntity();
++        ProjectileAllowCollideWithPlayerEvent event = new ProjectileAllowCollideWithPlayerEvent(projectile, (Player) player.getBukkitEntity());
++        event.callEvent();
++        return event;
++    }
++    // Octopus end - Add ProjectileAllowCollideWithPlayerEvent
++
+     public static ProjectileLaunchEvent callProjectileLaunchEvent(Entity entity) {
+         Projectile bukkitEntity = (Projectile) entity.getBukkitEntity();
+         ProjectileLaunchEvent event = new ProjectileLaunchEvent(bukkitEntity);
+@@ -2288,26 +_,27 @@
+     }
+ 
+     @SuppressWarnings("OptionalAssignedToNull")
+-    public static Component handleLoginResult(PlayerList.LoginResult result, PlayerConnection paperConnection, Connection connection, GameProfile profile, MinecraftServer server, boolean loginPhase) {
++    public static HorriblePlayerLoginEventHack.LoginResult handleLoginResult(PlayerList.LoginResult result, PlayerConnection paperConnection, Connection connection, GameProfile profile, MinecraftServer server, boolean loginPhase) { // Octopus - Allow skipping log messages for canceled login events
+         PlayerConnectionValidateLoginEvent event = new PlayerConnectionValidateLoginEvent(
+             paperConnection, result.isAllowed() ? null : PaperAdventure.asAdventure(result.message())
+         );
+         event.callEvent();
+ 
+         Component disconnectReason = PaperAdventure.asVanilla(event.getKickMessage());
++        HorriblePlayerLoginEventHack.LoginResult loginResult = new HorriblePlayerLoginEventHack.LoginResult(disconnectReason, false); // Octopus - Allow skipping log messages for canceled login events
+ 
+         // For the login event it normally was never fired during configuration phase. In order to make this deprecation less
+         // breaky we will cache result and use it next time.
+         if (loginPhase) {
+-            disconnectReason = HorriblePlayerLoginEventHack.execute(connection, server, profile,
+-                disconnectReason == null ? PlayerList.LoginResult.ALLOW : new PlayerList.LoginResult(disconnectReason, disconnectReason == null ? PlayerLoginEvent.Result.KICK_OTHER : result.result())
++            loginResult = HorriblePlayerLoginEventHack.execute(connection, server, profile,
++                disconnectReason == null ? PlayerList.LoginResult.ALLOW : new PlayerList.LoginResult(disconnectReason, disconnectReason == null ? PlayerLoginEvent.Result.KICK_OTHER : result.result()) // Octopus - Allow skipping log messages for canceled login events
+             );
+         } else if (connection.legacySavedLoginEventResultOverride != null) {
+             // If the override is set, use it.
+-            disconnectReason = connection.legacySavedLoginEventResultOverride.orElse(null);
++            loginResult = new HorriblePlayerLoginEventHack.LoginResult(connection.legacySavedLoginEventResultOverride.orElse(null), false); // Octopus - Allow skipping log messages for canceled login events
+         }
+ 
+-        return disconnectReason;
++        return loginResult; // Octopus - Allow skipping log messages for canceled login events
+     }
+ 
+     public static boolean callTransporterValidateTarget(final PathfinderMob mob, final Level level, final BlockPos transportItemTarget) {

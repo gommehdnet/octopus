@@ -1,0 +1,27 @@
+--- a/src/main/java/org/bukkit/event/player/PlayerLoginEvent.java
++++ b/src/main/java/org/bukkit/event/player/PlayerLoginEvent.java
+@@ -35,6 +_,7 @@
+     private final InetAddress realAddress;
+     private Result result = Result.ALLOWED;
+     private Component message = Component.empty();
++    private boolean skipLog; // Octopus - Allow skipping log messages for canceled login events
+ 
+     @ApiStatus.Internal
+     public PlayerLoginEvent(@NotNull final Player player, @NotNull final String hostname, @NotNull final InetAddress address, final @NotNull InetAddress realAddress) {
+@@ -74,6 +_,16 @@
+     public String getHostname() {
+         return this.hostname;
+     }
++
++    // Octopus start - Allow skipping log messages for canceled login events
++    public boolean isSkipLog() {
++        return this.skipLog;
++    }
++
++    public void setSkipLog(boolean skipLog) {
++        this.skipLog = skipLog;
++    }
++    // Octopus end - Allow skipping log messages for canceled login events
+ 
+     /**
+      * Gets the {@link InetAddress} for the Player associated with this event.

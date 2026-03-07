@@ -1,0 +1,82 @@
+--- a/net/minecraft/network/Connection.java
++++ b/net/minecraft/network/Connection.java
+@@ -1,6 +_,5 @@
+ package net.minecraft.network;
+ 
+-import com.google.common.collect.Queues;
+ import com.mojang.logging.LogUtils;
+ import io.netty.bootstrap.Bootstrap;
+ import io.netty.channel.Channel;
+@@ -29,7 +_,6 @@
+ import java.util.Queue;
+ import java.util.concurrent.RejectedExecutionException;
+ import java.util.function.Consumer;
+-import javax.crypto.Cipher;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.protocol.BundlerInfo;
+@@ -62,6 +_,7 @@
+     public static final Marker PACKET_MARKER = Util.make(MarkerFactory.getMarker("NETWORK_PACKETS"), marker -> marker.add(ROOT_MARKER));
+     public static final Marker PACKET_RECEIVED_MARKER = Util.make(MarkerFactory.getMarker("PACKET_RECEIVED"), marker -> marker.add(PACKET_MARKER));
+     public static final Marker PACKET_SENT_MARKER = Util.make(MarkerFactory.getMarker("PACKET_SENT"), marker -> marker.add(PACKET_MARKER));
++    private static final net.gommehd.cheetah.network.packet.PacketProcessor PACKET_PROCESSOR = new net.gommehd.cheetah.network.packet.DefaultPacketProcessor(); // Octopus - Packet listener api
+     private static final ProtocolInfo<ServerHandshakePacketListener> INITIAL_PROTOCOL = HandshakeProtocols.SERVERBOUND;
+     private final PacketFlow receiving;
+     private volatile boolean sendLoginDisconnect = true;
+@@ -224,7 +_,7 @@
+ 
+                     if (player != null) player.quitReason = org.bukkit.event.player.PlayerQuitEvent.QuitReason.ERRONEOUS_STATE; // Paper - Add API for quit reason
+                     if (flag) {
+-                        LOGGER.debug("Failed to sent packet", exception);
++                        Connection.LOGGER.warn("Failed to send to " + player.getName() + " packet", exception); // Octopus - change log level to warn
+                         boolean doesDisconnectExist = this.packetListener.protocol() != ConnectionProtocol.STATUS && this.packetListener.protocol() != ConnectionProtocol.HANDSHAKING; // Paper
+                         if (this.getSending() == PacketFlow.CLIENTBOUND && doesDisconnectExist) { // Paper
+                             Packet<?> packet = (Packet<?>)(this.sendLoginDisconnect
+@@ -321,6 +_,13 @@
+     }
+ 
+     private static <T extends PacketListener> void genericsFtw(Packet<T> packet, PacketListener listener) {
++        // Octopus start - Packet listener api
++        Connection connection = net.gommehd.cheetah.network.packet.ConnectionHelper.getCurrentConnection(listener);
++        packet = PACKET_PROCESSOR.processInbound(packet, connection);
++        if (packet == null) {
++            return; // Packet was cancelled
++        }
++        // Octopus end - Packet listener api
+         packet.handle((T)listener);
+     }
+ 
+@@ -481,11 +_,23 @@
+     }
+ 
+     private void sendPacket(Packet<?> packet, @Nullable ChannelFutureListener sendListener, boolean flush) {
++        // Octopus start - Packet listener api
++        packet = PACKET_PROCESSOR.processOutbound(packet, this);
++        if (packet == null) {
++            // Packet was canceled - handle clean up
++            if (sendListener != null) {
++                io.netty.channel.ChannelFuture completedFuture = this.channel.newSucceededFuture();
++                completedFuture.addListener(sendListener);
++            }
++            return;
++        }
++        final Packet<?> finalPacket = packet;
++
+         this.sentPackets++;
+         if (this.channel.eventLoop().inEventLoop()) {
+-            this.doSendPacket(packet, sendListener, flush);
++            this.doSendPacket(finalPacket, sendListener, flush); // Octopus - Packet listener api
+         } else {
+-            this.channel.eventLoop().execute(() -> this.doSendPacket(packet, sendListener, flush));
++            this.channel.eventLoop().execute(() -> this.doSendPacket(finalPacket, sendListener, flush)); // Octopus - Packet listener api
+         }
+     }
+ 
+@@ -514,6 +_,7 @@
+         }
+         } catch (final Exception e) {
+             LOGGER.error("NetworkException: {}", player, e);
++            PACKET_PROCESSOR.notifyError(packet, e, this); // Octopus - Packet listener api
+             this.disconnect(Component.translatable("disconnect.genericReason", "Internal Exception: " + e.getMessage()));
+             packet.onPacketDispatchFinish(player, null);
+         }
