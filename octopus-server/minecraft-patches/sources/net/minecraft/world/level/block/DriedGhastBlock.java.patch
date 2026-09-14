@@ -5,7 +5,7 @@
      protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
          if ((state.getValue(WATERLOGGED) || state.getValue(HYDRATION_LEVEL) > 0) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
 -            level.scheduleTick(pos, this, 5000);
-+            level.scheduleTick(pos, this, HYDRATION_TICK_DELAY); // Octopus - Using HYDRATION_TICK_DELAY instead of a magic number
++            level.scheduleTick(pos, this, HYDRATION_TICK_DELAY);    // Octopus - Using HYDRATION_TICK_DELAY instead of a magic number
          }
      }
  

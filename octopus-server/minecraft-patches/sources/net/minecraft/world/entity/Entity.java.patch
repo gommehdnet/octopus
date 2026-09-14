@@ -9,7 +9,7 @@
 +        final Team ownTeam = this.getTeam();
 +        if (ownTeam != null) {
 +            if (!io.papermc.paper.configuration.GlobalConfiguration.get().collisions.enablePlayerCollisions &&
-+            ownTeam.getName().equals(net.minecraft.server.MinecraftServer.getServer().getPlayerList().collideRuleTeamName)) {
++                ownTeam.getName().equals(net.minecraft.server.MinecraftServer.getServer().getPlayerList().collideRuleTeamName)) {
 +                return false;
 +            }
 +            return ownTeam.isAlliedTo(team);

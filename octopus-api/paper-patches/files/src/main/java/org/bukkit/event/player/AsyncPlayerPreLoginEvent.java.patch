@@ -15,7 +15,7 @@
 +
 +    // Octopus start - Allow skipping log messages for canceled login events
 +    public boolean isSkipLog() {
-+        return skipLog;
++        return this.skipLog;
 +    }
 +
 +    public void setSkipLog(boolean skipLog) {

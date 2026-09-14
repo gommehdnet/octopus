@@ -8,13 +8,13 @@
  
      // CraftBukkit start - add fields and methods
      public List<org.bukkit.entity.HumanEntity> transaction = new java.util.ArrayList<>();
-@@ -83,6 +_,16 @@
+@@ -73,6 +_,16 @@
      }
-     // Folia end - region threading
+     // CraftBukkit end
  
 +    // Octopus start - Configurable hopper transfer multiplier
 +    public float getHopperTransferMultiplier() {
-+        return hopperTransferMultiplier;
++        return this.hopperTransferMultiplier;
 +    }
 +
 +    public void setHopperTransferMultiplier(float hopperTransferMultiplier) {
@@ -22,9 +22,9 @@
 +    }
 +    // Octopus end - Configurable hopper transfer multiplier
 +
-     public HopperBlockEntity(BlockPos pos, BlockState blockState) {
-         super(BlockEntityType.HOPPER, pos, blockState);
-         this.facing = blockState.getValue(HopperBlock.FACING);
+     // Folia start - region threading
+     @Override
+     public void updateTicks(final long fromTickOffset, final long fromRedstoneTimeOffset) {
 @@ -97,6 +_,7 @@
          }
  

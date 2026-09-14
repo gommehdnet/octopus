@@ -1,7 +1,7 @@
 --- a/net/minecraft/network/protocol/game/ClientboundRotateHeadPacket.java
 +++ b/net/minecraft/network/protocol/game/ClientboundRotateHeadPacket.java
-@@ -26,6 +_,13 @@
-         this.yHeadRot = buffer.readByte();
+@@ -21,6 +_,13 @@
+         this.yHeadRot = yHeadRot;
      }
  
 +    // Octopus start - add constructor with entity id
@@ -11,6 +11,6 @@
 +    }
 +    // Octopus end - add constructor with entity id
 +
-     private void write(FriendlyByteBuf buffer) {
-         buffer.writeVarInt(this.entityId);
-         buffer.writeByte(this.yHeadRot);
+     private ClientboundRotateHeadPacket(FriendlyByteBuf buffer) {
+         this.entityId = buffer.readVarInt();
+         this.yHeadRot = buffer.readByte();

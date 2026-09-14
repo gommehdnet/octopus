@@ -1,20 +1,5 @@
 --- a/net/minecraft/network/Connection.java
 +++ b/net/minecraft/network/Connection.java
-@@ -1,6 +_,5 @@
- package net.minecraft.network;
- 
--import com.google.common.collect.Queues;
- import com.mojang.logging.LogUtils;
- import io.netty.bootstrap.Bootstrap;
- import io.netty.channel.Channel;
-@@ -29,7 +_,6 @@
- import java.util.Queue;
- import java.util.concurrent.RejectedExecutionException;
- import java.util.function.Consumer;
--import javax.crypto.Cipher;
- import net.minecraft.SharedConstants;
- import net.minecraft.network.chat.Component;
- import net.minecraft.network.protocol.BundlerInfo;
 @@ -62,6 +_,7 @@
      public static final Marker PACKET_MARKER = Util.make(MarkerFactory.getMarker("NETWORK_PACKETS"), marker -> marker.add(ROOT_MARKER));
      public static final Marker PACKET_RECEIVED_MARKER = Util.make(MarkerFactory.getMarker("PACKET_RECEIVED"), marker -> marker.add(PACKET_MARKER));
@@ -46,14 +31,14 @@
          packet.handle((T)listener);
      }
  
-@@ -481,11 +_,23 @@
+@@ -481,11 +_,24 @@
      }
  
      private void sendPacket(Packet<?> packet, @Nullable ChannelFutureListener sendListener, boolean flush) {
 +        // Octopus start - Packet listener api
 +        packet = PACKET_PROCESSOR.processOutbound(packet, this);
 +        if (packet == null) {
-+            // Packet was canceled - handle clean up
++            // Packet was cancelled - handle cleanup
 +            if (sendListener != null) {
 +                io.netty.channel.ChannelFuture completedFuture = this.channel.newSucceededFuture();
 +                completedFuture.addListener(sendListener);
@@ -61,6 +46,7 @@
 +            return;
 +        }
 +        final Packet<?> finalPacket = packet;
++        // Octopus end - Packet listener api
 +
          this.sentPackets++;
          if (this.channel.eventLoop().inEventLoop()) {

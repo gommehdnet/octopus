@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/item/ItemStack.java
++++ b/net/minecraft/world/item/ItemStack.java
+@@ -385,7 +_,7 @@
+             ServerLevel serverLevel = (ServerLevel) context.getLevel();
+             io.papermc.paper.threadedregions.RegionizedWorldData worldData = serverLevel.getCurrentWorldData(); // Folia - region threading
+ 
+-            if (!(item instanceof BucketItem/* || item instanceof SolidBucketItem*/)) { // if not bucket // Paper - Fix cancelled powdered snow bucket placement
++            if (!(item instanceof BucketItem/* || item instanceof SolidBucketItem*/ || item instanceof EndCrystalItem)) { // if not bucket // Paper - Fix cancelled powdered snow bucket placement // Octopus - Fix capturing blocks on end crystal placement
+                 worldData.captureBlockStates = true; // Folia - region threading
+                 // special case bonemeal
+                 if (item == Items.BONE_MEAL) {
