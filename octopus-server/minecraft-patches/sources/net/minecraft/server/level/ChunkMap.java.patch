@@ -1,9 +1,11 @@
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
-@@ -1360,6 +_,7 @@
+@@ -1360,6 +_,9 @@
                  }
                  flag = flag && this.entity.broadcastToPlayer(player) && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x, this.entity.chunkPosition().z);
                  // Paper end - Configurable entity tracking range by Y
++
++                flag |= player.getCamera() == this.entity; // Octopus - Fix GLOBAL-1080
 +
                  // Folia start - region threading
                  if (flag && (this.entity instanceof ServerPlayer thisEntity) && thisEntity.broadcastedDeath) {

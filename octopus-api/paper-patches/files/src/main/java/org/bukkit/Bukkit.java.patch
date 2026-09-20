@@ -1,16 +1,15 @@
 --- a/src/main/java/org/bukkit/Bukkit.java
 +++ b/src/main/java/org/bukkit/Bukkit.java
-@@ -2425,6 +_,20 @@
+@@ -2425,6 +_,19 @@
          return server.getEntity(uuid);
      }
  
 +    // Octopus start - get entity accessor by id
-+
 +    /**
-+     * Retrieves an entity based on the provided entity ID.
++     * Gets an entity on the server by its UUID
 +     *
-+     * @param entityId the unique identifier of the entity to retrieve; must not be null
-+     * @return the Entity corresponding to the specified ID, or null if no such entity exists
++     * @param entityId the id of the entity
++     * @return the entity with the given id, or null if it isn't found
 +     */
 +    @Nullable
 +    public static Entity getEntity(@NotNull Integer entityId) {

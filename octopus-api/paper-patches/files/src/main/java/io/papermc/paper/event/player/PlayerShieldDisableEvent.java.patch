@@ -23,7 +23,7 @@
 +     * @return {@code true} if the shield break sound is cancelled, {@code false} otherwise
 +     */
 +    public boolean isSoundCancelled() {
-+        return this.soundCancelled;
++        return soundCancelled;
 +    }
 +
 +    /**
@@ -33,7 +33,7 @@
 +     *
 +     * @param soundCancelled {@code true} to suppress the shield break sound, {@code false} to allow it
 +     */
-+    public void setSoundCancelled(final boolean soundCancelled) {
++    public void setSoundCancelled(boolean soundCancelled) {
 +        this.soundCancelled = soundCancelled;
 +    }
 +    // Octopus end - Add soundCancelled flag in PlayerShieldDisableEvent
