@@ -1,0 +1,12 @@
+--- a/src/test/java/org/bukkit/AnnotationTest.java
++++ b/src/test/java/org/bukkit/AnnotationTest.java
+@@ -36,6 +_,9 @@
+         "Lorg/checkerframework/checker/nullness/qual/Nullable;",
+         "Lorg/checkerframework/checker/nullness/qual/PolyNull;",
+         // Paper end
++        // Octopus start
++        "Lorg/jspecify/annotations/NonNull;",
++        // Octopus end
+     };
+ 
+     private static final String[] EXCLUDED_CLASSES = {

@@ -24,7 +24,12 @@ public class PlayerAdvancementRewardsGrantEvent extends PlayerEvent implements C
     private List<ItemStack> items;
     private int experience;
 
-    public PlayerAdvancementRewardsGrantEvent(final @NonNull Player who, List<NamespacedKey> recipes, List<ItemStack> items, int experience) {
+    public PlayerAdvancementRewardsGrantEvent(
+        final @NonNull Player who,
+        @NonNull List<NamespacedKey> recipes,
+        @NonNull List<ItemStack> items,
+        int experience
+    ) {
         super(who);
 
         this.experience = experience;

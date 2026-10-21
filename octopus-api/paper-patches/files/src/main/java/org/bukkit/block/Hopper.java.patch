@@ -1,6 +1,6 @@
 --- a/src/main/java/org/bukkit/block/Hopper.java
 +++ b/src/main/java/org/bukkit/block/Hopper.java
-@@ -21,5 +_,32 @@
+@@ -21,5 +_,31 @@
       */
      int getTransferCooldown();
      // Paper end - Expanded Hopper API
@@ -32,4 +32,4 @@
 +    }
 +    // Octopus end - API for configurable hopper transfer rates
  }
- 
+-
